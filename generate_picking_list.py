@@ -240,11 +240,14 @@ def process_single_csv(file_path):
         if STOP_COLUMN_KEYWORD in current_header:
             break
 
-        store_code = (
-            str(df.iloc[ROW_IDX_DATA_START, i]).strip()
-            if not pd.isna(df.iloc[ROW_IDX_DATA_START, i])
-            else ""
-        )
+        raw_val = df.iloc[ROW_IDX_DATA_START, i]
+
+        if pd.isna(raw_val):
+            store_code = ""
+        else:
+            store_code = str(raw_val).strip()
+            store_code = store_code.lstrip("0") or "0"
+
         store_name = (
             str(df.iloc[ROW_IDX_DATA_START, i + 1]).strip()
             if not pd.isna(df.iloc[ROW_IDX_DATA_START, i + 1])
@@ -414,7 +417,7 @@ def process_single_csv(file_path):
                 cell_val.font = Font(bold=True)
 
                 subtitle = (
-                    f"得意先（センター）名：{client_name}   店舗：{st_code} {st_name}"
+                    f"得意先（センター）名：{client_name}\n店舗：{st_code} {st_name}"
                 )
                 format_worksheet(
                     writer,
