@@ -283,12 +283,18 @@ def process_single_csv(file_path):
     )
 
     final_df["サイズ"] = final_df["サイズ"].apply(normalize_size_text)
+    final_df["MK_COLOR"] = final_df["MK_COLOR"].where(
+        final_df["MK_COLOR"].notna(), ""
+    )
+    final_df["色名"] = final_df["色名"].where(final_df["色名"].notna(), "")
+    final_df["MK_COLOR"] = final_df["MK_COLOR"].astype(str).str.strip()
+    final_df["色名"] = final_df["色名"].astype(str).str.strip()
 
     # ==========================================
     # 1. 商品毎のピッキングリスト
     # ==========================================
     group_cols_1 = ["商品名", "MK品番", "MK_COLOR", "色名", "サイズ"]
-    out1 = final_df.groupby(group_cols_1, as_index=False)["数量"].sum()
+    out1 = final_df.groupby(group_cols_1, as_index=False, dropna=False)["数量"].sum()
     out1 = out1.rename(columns={"MK品番": "品番", "数量": "合計枚数"})
 
     out1 = sort_df_with_custom_size(out1, ["商品名", "品番", "MK_COLOR", "サイズ"])
@@ -319,7 +325,7 @@ def process_single_csv(file_path):
         "色名",
         "サイズ",
     ]
-    out2_base = final_df.groupby(group_cols_2, as_index=False)["数量"].sum()
+    out2_base = final_df.groupby(group_cols_2, as_index=False, dropna=False)["数量"].sum()
     out2_base = out2_base.rename(
         columns={
             "MK品番": "品番",
